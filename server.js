@@ -1,12 +1,24 @@
+import {} from "dotenv/config";
 import express from "express";
+import { connect } from "./db/connections.js";
+import { fileRouter } from "./routes/file.js";
 
 const server = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 server.use(express.json());
 
-server.get("/", (req, res) => {
-  res.status(200).json({ success: true, msg: "home route" });
-});
+server.use("/", fileRouter);
 
-server.listen(port, () => console.log(`Server is listening on port ${port}`));
+const start = async () => {
+  try {
+    await connect(process.env.MONGO_CONNECTION_STRING);
+    server.listen(port, () =>
+      console.log(`Server is listening on port ${port}`)
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+start();
