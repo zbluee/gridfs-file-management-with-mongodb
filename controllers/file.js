@@ -45,3 +45,33 @@ export const getFile = async (req, res) => {
   }
 };
 
+export const streamFile = async (req, res) => {
+  try {
+    const { filename } = req.params;
+
+    if (!filename)
+      return res
+        .status(404)
+        .json({ success: false, msg: "file name is required" });
+
+    // Create a new GridFSBucket instance
+    const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+      bucketName: "files",
+    });
+
+    // Open a download stream for the specified filename
+    const downloadStream = bucket.openDownloadStreamByName(filename);
+
+    // Pipe the download stream to the response object to send the file
+    downloadStream.pipe(res);
+  } catch (error) {
+    res.status(500).json({ success: false, msg: "Internal server error" });
+  }
+};
+
+export const uploadFile = async (req, res) => {
+    res
+      .status(201)
+      .json({ success: true, message: "Issue submitted successfully." });
+
+};
